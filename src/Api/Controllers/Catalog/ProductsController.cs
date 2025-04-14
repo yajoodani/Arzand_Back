@@ -3,6 +3,7 @@ using Arzand.Modules.Catalog.Application.Commands;
 using Arzand.Modules.Catalog.Application.DTOs;
 using Arzand.Modules.Catalog.Application.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Arzand.Api.Controllers.Catalog;
@@ -32,6 +33,7 @@ public class ProductsController : ControllerBase
         return result is not null ? Ok(result) : NotFound();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateAsync(CreateProductCommand command)
     {
@@ -39,6 +41,7 @@ public class ProductsController : ControllerBase
         return CreatedAtRoute("Catalog.Products.GetByIdAsync", new { id = productId }, null);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateAsync(Guid id, UpdateProductCommand command)
     {
@@ -50,6 +53,7 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteByIdAsync(Guid id)
     {

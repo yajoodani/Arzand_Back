@@ -24,12 +24,14 @@ public class ProductEntityTypeConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.BrandId).IsRequired();
 
         builder.HasOne(p => p.Category)
-            .WithMany()
-            .HasForeignKey(p => p.CategoryId);
+            .WithMany(c => c.Products)
+            .HasForeignKey(p => p.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(p => p.Brand)
-            .WithMany()
-            .HasForeignKey(p => p.BrandId);
+            .WithMany(b => b.Products)
+            .HasForeignKey(p => p.BrandId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Configure backing field for encapsulated collection
         builder.Metadata

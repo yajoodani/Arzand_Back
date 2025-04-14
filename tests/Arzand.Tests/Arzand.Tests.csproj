@@ -27,13 +27,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Catalog/Domain/" />
+    <Folder Include="Identity/" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../../src/Modules/Catalog/Catalog.Application/Catalog.Application.csproj" />
     <ProjectReference Include="../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain.csproj" />
     <ProjectReference Include="../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure.csproj" />
+    <ProjectReference Include="../../src/Modules/Identity/Identity.csproj" />
   </ItemGroup>
 
 </Project>

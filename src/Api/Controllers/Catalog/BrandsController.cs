@@ -1,6 +1,7 @@
 using Arzand.Modules.Catalog.Application.Commands;
 using Arzand.Modules.Catalog.Application.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Arzand.Api.Controllers.Catalog;
@@ -30,6 +31,7 @@ public class BrandsController : ControllerBase
         return result is not null ? Ok(result) : NotFound();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateAsync(CreateBrandCommand command)
     {
@@ -37,6 +39,7 @@ public class BrandsController : ControllerBase
         return CreatedAtRoute("Catalog.Brands.GetByIdAsync", new { id }, null);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateAsync(Guid id, UpdateBrandCommand command)
     {
@@ -47,6 +50,7 @@ public class BrandsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
