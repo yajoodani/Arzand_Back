@@ -8,9 +8,17 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
 {
     public UpdateProductCommandValidator()
     {
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.Description).MaximumLength(1000);
-        RuleFor(x => x.CategoryId).NotEmpty();
-        RuleFor(x => x.BrandId).NotEmpty();
+        RuleFor(p => p.Name).NotEmpty().MaximumLength(100);
+        RuleFor(p => p.Description).MaximumLength(1000);
+        RuleFor(p => p.CategoryId).NotEmpty();
+        RuleFor(p => p.BrandId).NotEmpty();
+
+        // TODO Add later
+        // RuleForEach(p => p.Variants)
+        //     .ChildRules(variant => 
+        //     {
+        //         variant.RuleFor(v => v.Stock)
+        //             .GreaterThanOrEqualTo(0);
+        //     });
     }
 }

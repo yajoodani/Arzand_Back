@@ -19,14 +19,32 @@ public class ProductRepository : IProductRepository
         _context = context;
     }
 
-    public async Task<List<Product>> GetAllAsync() => await _context.Products.ToListAsync();
+    public async Task<List<Product>> GetAllAsync()
+    {
+        return await _context.Products
+            .Include(p => p.Variants)
+                .ThenInclude(v => v.Attributes)
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .ToListAsync();
+    }
 
     public async Task<Product?> GetByIdAsync(Guid id)
     {
         return await _context.Products
             .Include(p => p.Variants)
                 .ThenInclude(v => v.Attributes)
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
             .FirstOrDefaultAsync(p => p.Id == id);
+    }
+
+    public async Task<List<Product>> GetByIdsAsync(IEnumerable<Guid> ids)
+    {
+        return await _context.Products
+            .Include(p => p.Variants)
+            .Where(p => ids.Contains(p.Id))
+            .ToListAsync();
     }
 
     public async Task<Product> AddAsync(Product product)

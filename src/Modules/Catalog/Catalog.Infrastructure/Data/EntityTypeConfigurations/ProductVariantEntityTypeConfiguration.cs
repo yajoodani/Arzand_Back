@@ -16,6 +16,9 @@ public class ProductVariantEntityTypeConfiguration : IEntityTypeConfiguration<Pr
         builder.Property(pv => pv.ProductId)
             .IsRequired();
 
+        builder.Property(pv => pv.Stock)
+            .IsRequired();
+
         builder.HasOne(pv => pv.Product)
             .WithMany(p => p.Variants)
             .HasForeignKey(pv => pv.ProductId);

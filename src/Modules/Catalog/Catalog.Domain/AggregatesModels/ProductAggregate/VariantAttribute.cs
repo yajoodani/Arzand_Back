@@ -10,7 +10,7 @@ public class VariantAttribute : ValueObject
 
     private VariantAttribute() { } // Required by EF Core
 
-    public static VariantAttribute Create(string name, string value)
+    internal static VariantAttribute Create(string name, string value)
     {
         return new VariantAttribute
         {

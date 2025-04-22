@@ -32,17 +32,67 @@ public class Product : Entity<Guid>, IAggregateRoot
         };
     }
 
-    public void AddVariants(List<ProductVariant> variants)
-    {
-        _variants.AddRange(variants);
-        
-    }
-
     public void Update(string name, string description, int categoryId, Guid brandId)
     {
         Name = name;
         Description = description;
         CategoryId = categoryId;
         BrandId = brandId;
+    }
+
+    public static ProductVariant CreateVariant(Guid productId, Money price, int stock, string name, 
+        string description, List<VariantAttribute> variantAttributes)
+    {
+        var variant = ProductVariant.Create(productId, price, stock, name, 
+            description, variantAttributes);
+        
+        return variant;
+    }
+
+    public void UpdateVariant(Guid variantId, Money price, int stock, string name, string description)
+    {
+        var variant = GetVariant(variantId);
+        variant.Update(price, stock, name, description);
+    }
+
+    public void SetVariantStock(Guid variantId, int stock)
+    {
+        var variant = GetVariant(variantId);
+        variant.SetStock(stock);
+    }
+
+    public void ReserveVariantStock(Guid variantId, int quantity)
+    {
+        /**
+            With negative quantity values can be used to free reserved stock.
+        */
+        
+        var variant = GetVariant(variantId);
+        variant.SetStock(variant.Stock - quantity);
+    }
+
+    public void AddAttributeToVariant(Guid variantId, string name, string value)
+    {
+        var variant = GetVariant(variantId);
+        variant.AddAttribute(name, value);
+    }
+
+    public void AddVariants(List<ProductVariant> variants)
+    {
+        _variants.AddRange(variants);
+        
+    }
+
+    private ProductVariant GetVariant(Guid variantId)
+    {
+        var variant = _variants.FirstOrDefault(v => v.Id == variantId) 
+            ?? throw new Exception("Variant not found.");
+        return variant;
+    }
+
+    public static VariantAttribute CreateVariantAttribute(string name, string description)
+    {
+        var attribute = VariantAttribute.Create(name, description);
+        return attribute;
     }
 }

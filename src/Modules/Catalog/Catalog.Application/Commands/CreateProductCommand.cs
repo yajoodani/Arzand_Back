@@ -1,4 +1,5 @@
 using System;
+using Arzand.Modules.Catalog.Application.DTOs;
 using Arzand.Modules.Catalog.Domain.AggregatesModels.ProductAggregate;
 using MediatR;
 
@@ -10,5 +11,5 @@ public record CreateProductCommand(
     string Description,
     int CategoryId,
     Guid BrandId,
-    List<ProductVariant> Variants  // TODO ProductVariant Dto
+    List<CreateProductVariantDto> Variants
 ) : IRequest<Guid>;

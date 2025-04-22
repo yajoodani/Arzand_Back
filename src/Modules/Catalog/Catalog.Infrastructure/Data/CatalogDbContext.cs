@@ -5,6 +5,7 @@ using Arzand.Modules.Catalog.Domain.AggregatesModels.ProductAggregate;
 using Arzand.Modules.Catalog.Infrastructure.Data.EntityTypeConfigurations;
 using Arzand.Shared.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Arzand.Modules.Catalog.Infrastructure.Data;
 
@@ -85,5 +86,10 @@ public class CatalogDbContext : DbContext, IUnitOfWork
         // TODO: Dispatch domain events here
         // Placeholder for domain event logic
         await Task.CompletedTask;
+    }
+
+    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        return await Database.BeginTransactionAsync(cancellationToken);
     }
 }

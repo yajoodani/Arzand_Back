@@ -1,6 +1,8 @@
+using Arzand.Modules.Catalog.Application.DTOs;
 using Arzand.Modules.Catalog.Domain.AggregatesModels.BrandAggregate;
 using Arzand.Modules.Catalog.Domain.AggregatesModels.CategoryAggregate;
 using Arzand.Modules.Catalog.Domain.AggregatesModels.ProductAggregate;
+using AutoMapper;
 using MediatR;
 
 namespace Arzand.Modules.Catalog.Application.Commands;
@@ -10,15 +12,18 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
     private readonly IBrandRepository _brandRepository;
     private readonly ICategoryRepository _categoryRepository;
     private readonly IProductRepository _productRepository;
+    private readonly IMapper _mapper;
 
     public CreateProductCommandHandler(
         IBrandRepository brandRepository,
         ICategoryRepository categoryRepository,
-        IProductRepository productRepository)
+        IProductRepository productRepository,
+        IMapper mapper)
     {
         _brandRepository = brandRepository;
         _categoryRepository = categoryRepository;
         _productRepository = productRepository;
+        _mapper = mapper;
     }
 
     public async Task<Guid> Handle(CreateProductCommand command, CancellationToken cancellationToken)
@@ -36,7 +41,7 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
             description: command.Description,
             categoryId: category.Id,
             brandId: brand.Id,
-            variants: command.Variants
+            variants: _mapper.Map<List<ProductVariant>>(command.Variants)
         );
 
         await _productRepository.AddAsync(product);

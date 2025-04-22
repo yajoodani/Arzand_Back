@@ -11,4 +11,5 @@ public class ProductDto
     public string Brand { get; set; }
     public int CategoryId { get; set; }
     public string Category { get; set; }
+    public List<ProductVariantDto> Variants { get; set; }
 }
