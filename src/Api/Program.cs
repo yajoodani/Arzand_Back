@@ -6,6 +6,7 @@ using Arzand.Modules.Catalog.Application.Services;
 using Arzand.Modules.Catalog.Infrastructure.Extensions;
 using Arzand.Modules.Identity.Data.Seed;
 using Arzand.Modules.Identity.Extensions;
+using Arzand.Modules.Ordering.Infrastructure.Extensions;
 using Arzand.Shared.Contracts;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -98,6 +99,7 @@ builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddCatalogModule(builder.Configuration);
 builder.Services.AddCartModule(builder.Configuration);
+builder.Services.AddOrderingModule(builder.Configuration);
 
 var app = builder.Build();
 

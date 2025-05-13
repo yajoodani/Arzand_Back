@@ -11,6 +11,8 @@ public class BrandEntityTypeConfiguration : IEntityTypeConfiguration<Brand>
     {
         builder.ToTable("Brands");
 
+        builder.Ignore(b => b.DomainEvents);
+
         builder.HasKey(b => b.Id);
 
         builder.Property(b => b.Name)

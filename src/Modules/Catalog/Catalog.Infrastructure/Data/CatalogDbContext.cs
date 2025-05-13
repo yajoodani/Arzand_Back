@@ -4,6 +4,8 @@ using Arzand.Modules.Catalog.Domain.AggregatesModels.CategoryAggregate;
 using Arzand.Modules.Catalog.Domain.AggregatesModels.ProductAggregate;
 using Arzand.Modules.Catalog.Infrastructure.Data.EntityTypeConfigurations;
 using Arzand.Shared.Domain;
+using Arzand.Shared.Infrastructure;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -15,7 +17,12 @@ public class CatalogDbContext : DbContext, IUnitOfWork
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Category> Categories { get; set; }
 
-    public CatalogDbContext(DbContextOptions<CatalogDbContext> options) : base(options) { }
+    private readonly IMediator _mediator;
+
+    public CatalogDbContext(DbContextOptions<CatalogDbContext> options, IMediator mediator) : base(options) 
+    { 
+        _mediator = mediator;
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -73,21 +80,14 @@ public class CatalogDbContext : DbContext, IUnitOfWork
     {
         // Added before SaveChangesAsync, so that only one save will be done.
         // If added after, eventual consistency must be handled.
-        await DispatchDomainEventsAsync();
+        await _mediator.DispatchDomainEventsAsync(this);
 
         // Save changes to the database
         await SaveChangesAsync(cancellationToken);
 
         return true;
     }
-
-    private async Task DispatchDomainEventsAsync()
-    {
-        // TODO: Dispatch domain events here
-        // Placeholder for domain event logic
-        await Task.CompletedTask;
-    }
-
+    
     public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
         return await Database.BeginTransactionAsync(cancellationToken);

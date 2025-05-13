@@ -11,6 +11,8 @@ public class ProductVariantEntityTypeConfiguration : IEntityTypeConfiguration<Pr
     {
         builder.ToTable("ProductVariants");
 
+        builder.Ignore(pv => pv.DomainEvents);
+
         builder.HasKey(pv => pv.Id);
 
         builder.Property(pv => pv.ProductId)
@@ -44,7 +46,6 @@ public class ProductVariantEntityTypeConfiguration : IEntityTypeConfiguration<Pr
 
             a.ToTable("ProductVariantAttributes");
             a.HasIndex(a => a.Name).IsUnique();
-
         });
 
         builder.Navigation(p => p.Attributes).Metadata.SetField("_attributes");

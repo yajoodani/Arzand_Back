@@ -27,6 +27,8 @@
     <ProjectReference Include="../Modules/Cart/Cart.csproj" />
     <ProjectReference Include="../Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure.csproj" />
     <ProjectReference Include="../Modules/Identity/Identity.csproj" />
+    <ProjectReference Include="../Modules/Ordering/Ordering.Application/Ordering.Application.csproj" />
+    <ProjectReference Include="../Modules/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

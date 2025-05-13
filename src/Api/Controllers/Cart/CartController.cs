@@ -29,7 +29,7 @@ public class CartController : ControllerBase
     }
 
     [Authorize]
-    [HttpPost]
+    [HttpPut]
     public async Task<IActionResult> UpdateCart(List<CartItem> cartItems)
     {
         var userId = GetUserId();
@@ -46,6 +46,15 @@ public class CartController : ControllerBase
         var deleted = await _cartService.DeleteCartAsync(userId);
         if (!deleted) return NotFound();
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpPost("checkout")]
+    public async Task<IActionResult> CheckoutAsync()
+    {
+        var userId = GetUserId();
+        await _cartService.CheckoutAsync(userId);
+        return Accepted();
     }
 
     private Guid GetUserId()

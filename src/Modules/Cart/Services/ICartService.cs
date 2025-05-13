@@ -8,4 +8,5 @@ public interface ICartService
     Task<CartModel?> GetCartAsync(Guid userId);
     Task<CartModel> UpdateCartAsync(CartModel cart);
     Task<bool> DeleteCartAsync(Guid userId);
+    Task CheckoutAsync(Guid userId);
 }

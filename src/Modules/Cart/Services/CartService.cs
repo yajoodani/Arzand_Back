@@ -1,7 +1,10 @@
 using System;
 using System.Text.Json;
 using Arzand.Modules.Cart.Models;
+using Arzand.Shared.Application;
 using Arzand.Shared.Contracts;
+using Arzand.Shared.Contracts.IntegrationEvents;
+using DotNetCore.CAP;
 using StackExchange.Redis;
 
 namespace Arzand.Modules.Cart.Services;
@@ -10,11 +13,13 @@ public class CartService : ICartService
 {
     private readonly IDatabase _db;
     private readonly ICatalogService _catalogService;
+    private readonly ICapPublisher _capPublisher;
 
-    public CartService(IConnectionMultiplexer redis, ICatalogService catalogService)
+    public CartService(IConnectionMultiplexer redis, ICatalogService catalogService, ICapPublisher capPublisher)
     {
         _db = redis.GetDatabase();
         _catalogService = catalogService;
+        _capPublisher = capPublisher;
     }
 
     public async Task<CartModel?> GetCartAsync(Guid userId)
@@ -38,6 +43,39 @@ public class CartService : ICartService
         await UpdateCartInternalAsync(dummyCart);
         return await _db.KeyDeleteAsync(userId.ToString());
     }
+
+    public async Task CheckoutAsync(Guid userId)
+    {
+        var cart = await GetCartAsync(userId)
+            ?? throw new Exception("Cart is empty.");
+        if (cart!.Items.Count == 0) throw new Exception("Cart is empty.");
+
+        var integrationEvent = new CartCheckedOutIntegrationEvent
+        {
+            UserId = userId,
+            CheckedOutAt = DateTime.UtcNow,
+            TotalPrice = new MoneyDto
+            {
+                Amount = cart.Items.Sum(i => i.Price.Amount * i.Quantity),
+                Currency = cart.Items.First().Price.Currency,
+            },
+            Items = cart.Items.Select(i => new CartCheckedOutIntegrationEvent.CartItemDto
+            {
+                ProductId = i.ProductId,
+                VariantId = i.VariantId,
+                ProductName = i.ProductName,
+                VariantName = i.VariantName,
+                Quantity = i.Quantity,
+                Price = i.Price
+            }).ToList()
+        };
+
+        await _capPublisher.PublishAsync("cart.checkout", integrationEvent);
+
+        // Cart is cleared but the the stock is still reserved.
+        await _db.KeyDeleteAsync(userId.ToString());
+    }
+
 
     private async Task<CartModel> UpdateCartInternalAsync(CartModel cart)
     {

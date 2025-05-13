@@ -11,6 +11,9 @@ public class CategoryEntityTypeConfiguration : IEntityTypeConfiguration<Category
     {
         builder.HasKey(c => c.Id);
 
+        builder.Ignore(c => c.DomainEvents);
+
+
         builder.Property(c => c.Name)
             .IsRequired()
             .HasMaxLength(100);
