@@ -33,6 +33,7 @@ public static class OrderingModule
         services.AddScoped<IOrderRepository, OrderRepository>();
 
         services.AddTransient<CartCheckedOutIntegrationEventHandler>();
+        services.AddTransient<PaymentCompletedIntegrationEventHandler>();
 
         return services;
     }

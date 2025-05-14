@@ -42,8 +42,10 @@ public class Order : Entity<Guid>, IAggregateRoot
  
     public void MarkAsPaid()
     {
-        if (Status != OrderStatus.Pending)
-            throw new InvalidOperationException("Only pending orders can be paid");
+        if (Status != OrderStatus.Created && Status != OrderStatus.Pending)
+        {
+            throw new InvalidOperationException("Only Created or Pending orders can be paid");
+        }
 
         Status = OrderStatus.Paid;
     }
