@@ -1,0 +1,34 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__IdentityConnection: Host=postgres;Database=identity;Username=postgres;Password=postgres
+      ConnectionStrings__CatalogConnection: Host=postgres;Database=catalog;Username=postgres;Password=postgres
+      ConnectionStrings__OrderingConnection: Host=postgres;Database=ordering;Username=postgres;Password=postgres
+      ConnectionStrings__PaymentConnection: Host=postgres;Database=payment;Username=postgres;Password=postgres
+      ConnectionStrings__EventBusConnection: Host=postgres;Database=cap;Username=postgres;Password=postgres
+      ConnectionStrings__Redis: redis:6379,abortConnect=false
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - /srv/arzand/postgres-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    expose:
+      - "5432"
+
+  redis:
+    image: redis
+    expose:
+      - "6379"

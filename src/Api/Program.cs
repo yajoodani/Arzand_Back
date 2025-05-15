@@ -3,14 +3,19 @@ using System.Text;
 using Arzand.Api.Middlewares;
 using Arzand.Modules.Cart.Extensions;
 using Arzand.Modules.Catalog.Application.Services;
+using Arzand.Modules.Catalog.Infrastructure.Data;
 using Arzand.Modules.Catalog.Infrastructure.Extensions;
+using Arzand.Modules.Identity.Data;
 using Arzand.Modules.Identity.Data.Seed;
 using Arzand.Modules.Identity.Extensions;
+using Arzand.Modules.Ordering.Infrastructure.Data;
 using Arzand.Modules.Ordering.Infrastructure.Extensions;
 using Arzand.Modules.Payment.Extensions;
+using Arzand.Modules.Payment.Infrastructure;
 using Arzand.Shared.Contracts;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
@@ -91,8 +96,23 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
-    var config = builder.Configuration.GetSection("Redis")["ConnectionString"];
-    return ConnectionMultiplexer.Connect(config!);
+    var config = builder.Configuration.GetConnectionString("Redis")!;
+    var conn = ConnectionMultiplexer.Connect(config!, options =>
+    {
+        options.AbortOnConnectFail = false;
+    });
+
+    conn.ConnectionFailed += (sender, args) =>
+    {
+        Console.WriteLine($"Redis Connection Failed: {args.Exception}");
+    };
+
+    conn.ConnectionRestored += (sender, args) =>
+    {
+        Console.WriteLine("Redis Connection Restored.");
+    };
+
+    return conn;
 });
 
 builder.Services.AddScoped<ICatalogService, CatalogService>();
@@ -104,6 +124,31 @@ builder.Services.AddOrderingModule(builder.Configuration);
 builder.Services.AddPaymentModule(builder.Configuration);
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    void Migrate<TContext>() where TContext : DbContext
+    {
+        var db = services.GetRequiredService<TContext>();
+        db.Database.Migrate();
+    }
+
+    try
+    {
+        Migrate<IdentityDbContext>();
+        Migrate<CatalogDbContext>();
+        Migrate<OrderingDbContext>();
+        Migrate<PaymentDbContext>();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the databases.");
+        throw;
+    }
+}
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
